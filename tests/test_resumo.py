@@ -36,13 +36,13 @@ def test_mascaramento():
 
 
 def test_fatos_basicos(fatos):
-    assert fatos.cnj == "6003160-36.2026.8.16.0021"
+    assert fatos.cnj == "6000999-00.2026.8.16.0021"
     assert fatos.tribunal_nome == "Tribunal de Justiça do Paraná"
     assert fatos.valor_causa == "R$ 30.000,00"
     assert fatos.status == "ativa"
     assert fatos.juizo_100_digital and not fatos.citacao_registrada
     assert [p.tipo for p in fatos.partes] == ["AUTOR", "AUTOR", "ADVOGADO", "RÉU"]
-    assert fatos.partes[2].documento == "OAB/PR 0035553"
+    assert fatos.partes[2].documento == "OAB/PR 0000001"
 
 
 def test_movimentos_cronologicos_e_datas(fatos):
@@ -77,7 +77,7 @@ def test_persistencia(tmp_path, kb):
 
 def test_prompt_sem_documentos(kb, fatos):
     msg = montar_mensagem(fatos, kb.contexto_para(fatos))
-    assert "271.359" not in msg and "02727135971" not in msg
+    assert "144.477" not in msg and "11144477735" not in msg
     assert "data_agendada" in msg and "<alertas>" in msg
 
 

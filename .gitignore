@@ -45,12 +45,17 @@ resumo*.json
 resumo*.md
 homologacao*.json
 gate*.json
-!exemplo_saida_template.md
 
 # Índices/embeddings gerados (kb/ é versionado)
 indice/
 *.npy
+*.db
+*.sqlite
+*.sqlite3
 
+# ===== Logs e arquivos compactados (podem conter dados de processo) =====
+*.log
+*.zip
 
 # ===== Backups / temporários =====
 *.bak

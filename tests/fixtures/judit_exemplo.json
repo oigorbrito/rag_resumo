@@ -1,0 +1,347 @@
+{
+ "request_status": "completed",
+ "page": 1,
+ "page_count": 2,
+ "all_pages_count": 1,
+ "all_count": 2,
+ "page_data": [
+  {
+   "response_id": "f171d401-84c4-4632-809a-b8417c54ba6e",
+   "user_id": "a40f3ba1-9c0d-4668-87f1-7a7585cddc71",
+   "request_id": "07ac3b3c-f417-4402-94e6-782813c5a2b1",
+   "origin": "api",
+   "origin_id": "07ac3b3c-f417-4402-94e6-782813c5a2b1",
+   "response_type": "lawsuit",
+   "response_data": {
+    "code": "6000999-00.2026.8.16.0021",
+    "instance": 1,
+    "name": "MARIA EXEMPLO SOUZA X EMPRESA EXEMPLO COMERCIO LTDA",
+    "secrecy_level": 0,
+    "tribunal_acronym": "TJPR",
+    "justice": "8",
+    "justice_description": "JUSTIÇA ESTADUAL",
+    "tribunal": "16",
+    "county": "CASCAVEL - VARA DA FAZENDA PÚBLICA",
+    "state": "PR",
+    "city": "CASCAVEL",
+    "area": "DIREITO DO TRABALHO",
+    "amount": 30000,
+    "distribution_date": "2026-09-01T20:33:37.000Z",
+    "classifications": [
+     {
+      "code": "436",
+      "name": "PROCEDIMENTO DO JUIZADO ESPECIAL CÍVEL",
+      "date": "2026-09-02T18:51:04.802Z"
+     },
+     {
+      "code": "169",
+      "name": "EMBARGOS",
+      "date": "2026-09-02T17:42:50.910Z"
+     }
+    ],
+    "subjects": [
+     {
+      "code": "14033",
+      "name": "INDENIZAÇÃO POR DANO MORAL"
+     },
+     {
+      "code": "10431",
+      "name": "RESPONSABILIDADE CIVIL"
+     },
+     {
+      "code": "899",
+      "name": "DIREITO CIVIL"
+     }
+    ],
+    "courts": [
+     {
+      "name": "JUÍZO DA 3º JUIZADO ESPECIAL CÍVEL, CRIMINAL E DA FAZENDA PÚBLICA DE CASCAVEL"
+     }
+    ],
+    "parties": [
+     {
+      "main_document": "11144477735",
+      "name": "MARIA EXEMPLO SOUZA",
+      "side": "Active",
+      "person_type": "AUTOR",
+      "documents": [],
+      "lawyers": [
+       {
+        "name": "ANA EXEMPLO LIMA",
+        "documents": [
+         {
+          "document": "PR0000001",
+          "document_type": "oab"
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "main_document": "52998224725",
+      "name": "JOAO EXEMPLO SOUZA",
+      "side": "Active",
+      "person_type": "AUTOR",
+      "documents": [],
+      "lawyers": [
+       {
+        "name": "ANA EXEMPLO LIMA",
+        "documents": [
+         {
+          "document": "PR0000001",
+          "document_type": "oab"
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "name": "ANA EXEMPLO LIMA",
+      "side": "Active",
+      "person_type": "ADVOGADO",
+      "documents": [
+       {
+        "document": "PR0000001",
+        "document_type": "oab"
+       }
+      ],
+      "lawyers": []
+     },
+     {
+      "main_document": "11222333000181",
+      "name": "EMPRESA EXEMPLO COMERCIO LTDA",
+      "side": "Passive",
+      "person_type": "RÉU",
+      "documents": [],
+      "lawyers": []
+     }
+    ],
+    "situation": "MOVIMENTO",
+    "judge": "LIA SARA TEDESCO",
+    "free_justice": false,
+    "system": "NÃO INFORMADO",
+    "tribunal_url": "NÃO INFORMADO",
+    "last_step": {
+     "lawsuit_cnj": "6000999-00.2026.8.16.0021",
+     "lawsuit_instance": 1,
+     "step_id": "d5fb330f",
+     "step_date": "2026-09-02T16:09:16.000Z",
+     "content": "13 - REMETIDOS OS AUTOS - CASDIST -> CAS17VJ",
+     "private": false,
+     "tags": {},
+     "steps_count": 13
+    },
+    "steps": [
+     {
+      "lawsuit_cnj": "6000999-00.2026.8.16.0021",
+      "lawsuit_instance": 1,
+      "step_id": "d5fb330f",
+      "step_date": "2026-09-02T16:09:16.000Z",
+      "content": "13 - REMETIDOS OS AUTOS - CASDIST -> CAS17VJ",
+      "private": false,
+      "source_name": "JEproc - TJPR - PR - Lawsuit - Auth - 1 instance",
+      "tags": {}
+     },
+     {
+      "lawsuit_cnj": "6000999-00.2026.8.16.0021",
+      "lawsuit_instance": 1,
+      "step_id": "76960ae6",
+      "step_date": "2026-09-02T15:56:04.000Z",
+      "content": "12 - ATO ORDINATÓRIO PRATICADO   DOCUMENTO ENCAMINHADO À DISPONIBILIZAÇÃO NO DIÁRIO ELETRÔNICO - NO DIA 03/09/2026 - REFER. AOS EVENTOS: 10, 11",
+      "private": false,
+      "source_name": "JEproc - TJPR - PR - Lawsuit - Auth - 1 instance",
+      "tags": {}
+     },
+     {
+      "lawsuit_cnj": "6000999-00.2026.8.16.0021",
+      "lawsuit_instance": 1,
+      "step_id": "c2df8228",
+      "step_date": "2026-09-02T15:38:46.000Z",
+      "content": "11 - EXPEDIDA/CERTIFICADA A INTIMAÇÃO ELETRÔNICAREFER.  AO EVENTO 9(AUTOR -  JOAO EXEMPLO SOUZA) PRAZO: 15 DIAS STATUS:AGUARD. ABERTURADIÁRIO DE JUSTIÇA ELETRÔNICO NACIONAL: ENVIADO EM 02/09/2026 PARA DISPONIBILIZAÇÃO EM 03/09/2026",
+      "private": false,
+      "source_name": "JEproc - TJPR - PR - Lawsuit - Auth - 1 instance",
+      "tags": {}
+     },
+     {
+      "lawsuit_cnj": "6000999-00.2026.8.16.0021",
+      "lawsuit_instance": 1,
+      "step_id": "fe47caa9",
+      "step_date": "2026-09-02T15:38:46.000Z",
+      "content": "10 - EXPEDIDA/CERTIFICADA A INTIMAÇÃO ELETRÔNICAREFER.  AO EVENTO 9(AUTOR -  MARIA EXEMPLO SOUZA) PRAZO: 15 DIAS STATUS:AGUARD. ABERTURADIÁRIO DE JUSTIÇA ELETRÔNICO NACIONAL: ENVIADO EM 02/09/2026 PARA DISPONIBILIZAÇÃO EM 03/09/2026",
+      "private": false,
+      "source_name": "JEproc - TJPR - PR - Lawsuit - Auth - 1 instance",
+      "tags": {}
+     },
+     {
+      "lawsuit_cnj": "6000999-00.2026.8.16.0021",
+      "lawsuit_instance": 1,
+      "step_id": "ed4ea106",
+      "step_date": "2026-09-02T15:38:46.000Z",
+      "content": "9 - JUNTADA DE CERTIDÃO",
+      "private": false,
+      "source_name": "JEproc - TJPR - PR - Lawsuit - Auth - 1 instance",
+      "tags": {}
+     },
+     {
+      "lawsuit_cnj": "6000999-00.2026.8.16.0021",
+      "lawsuit_instance": 1,
+      "step_id": "3dd5548b",
+      "step_date": "2026-09-02T05:00:56.000Z",
+      "content": "8 - DISPONIBILIZADO NO DJEN - NO DIA 02/09/2026 - REFER. AOS EVENTOS: 5, 6",
+      "private": false,
+      "source_name": "JEproc - TJPR - PR - Lawsuit - Auth - 1 instance",
+      "tags": {}
+     },
+     {
+      "lawsuit_cnj": "6000999-00.2026.8.16.0021",
+      "lawsuit_instance": 1,
+      "step_id": "bc3d4178",
+      "step_date": "2026-09-01T21:04:02.000Z",
+      "content": "7 - ATO ORDINATÓRIO PRATICADO   DOCUMENTO ENCAMINHADO À DISPONIBILIZAÇÃO NO DIÁRIO ELETRÔNICO - NO DIA 02/09/2026 - REFER. AOS EVENTOS: 5, 6",
+      "private": false,
+      "source_name": "JEproc - TJPR - PR - Lawsuit - Auth - 1 instance",
+      "tags": {}
+     },
+     {
+      "lawsuit_cnj": "6000999-00.2026.8.16.0021",
+      "lawsuit_instance": 1,
+      "step_id": "5e79f6c4",
+      "step_date": "2026-09-01T20:33:46.000Z",
+      "content": "6 - EXPEDIDA/CERTIFICADA A INTIMAÇÃO ELETRÔNICA - AUDIÊNCIAREFER.  AO EVENTO 4(AUTOR -  JOAO EXEMPLO SOUZA) PRAZO: 1 DIA STATUS:AGUARD. ABERTURA",
+      "private": false,
+      "source_name": "JEproc - TJPR - PR - Lawsuit - Auth - 1 instance",
+      "tags": {}
+     },
+     {
+      "lawsuit_cnj": "6000999-00.2026.8.16.0021",
+      "lawsuit_instance": 1,
+      "step_id": "35b43d76",
+      "step_date": "2026-09-01T20:33:46.000Z",
+      "content": "5 - EXPEDIDA/CERTIFICADA A INTIMAÇÃO ELETRÔNICA - AUDIÊNCIAREFER.  AO EVENTO 4(AUTOR -  MARIA EXEMPLO SOUZA) PRAZO: 1 DIA STATUS:AGUARD. ABERTURA",
+      "private": false,
+      "source_name": "JEproc - TJPR - PR - Lawsuit - Auth - 1 instance",
+      "tags": {}
+     },
+     {
+      "lawsuit_cnj": "6000999-00.2026.8.16.0021",
+      "lawsuit_instance": 1,
+      "step_id": "bb3c2c90",
+      "step_date": "2026-09-01T20:33:39.000Z",
+      "content": "4 - AUDIÊNCIA DE CONCILIAÇÃO DESIGNADA - LOCAL CONCILIAÇÃO JUIZADO CÍVEL - 03/03/2027 15:00",
+      "private": false,
+      "source_name": "JEproc - TJPR - PR - Lawsuit - Auth - 1 instance",
+      "tags": {}
+     },
+     {
+      "lawsuit_cnj": "6000999-00.2026.8.16.0021",
+      "lawsuit_instance": 1,
+      "step_id": "02dc88c0",
+      "step_date": "2026-09-01T20:33:38.000Z",
+      "content": "3 - REMETIDOS OS AUTOS - CAS17VJ -> CASDIST",
+      "private": false,
+      "source_name": "JEproc - TJPR - PR - Lawsuit - Auth - 1 instance",
+      "tags": {}
+     },
+     {
+      "lawsuit_cnj": "6000999-00.2026.8.16.0021",
+      "lawsuit_instance": 1,
+      "step_id": "28abfb4c",
+      "step_date": "2026-09-01T20:33:38.000Z",
+      "content": "2 - AUTOS INCLUÍDOS NO JUÍZO 100% DIGITAL",
+      "private": false,
+      "source_name": "JEproc - TJPR - PR - Lawsuit - Auth - 1 instance",
+      "tags": {}
+     },
+     {
+      "lawsuit_cnj": "6000999-00.2026.8.16.0021",
+      "lawsuit_instance": 1,
+      "step_id": "66b03cfa",
+      "step_date": "2026-09-01T20:33:37.000Z",
+      "content": "1 - DISTRIBUÍDO POR SORTEIO (CAS17VJ01)",
+      "private": false,
+      "source_name": "JEproc - TJPR - PR - Lawsuit - Auth - 1 instance",
+      "tags": {}
+     }
+    ],
+    "attachments": [
+     {
+      "attachment_id": "411788364428621657023616086781",
+      "attachment_name": "ATO ORDINATÓRIO 1 - SEM SIGILO (NÍVEL 0) - 1.10KB",
+      "step_id": "76960ae6",
+      "extension": "html",
+      "tags": {},
+      "status": "pending",
+      "attachment_date": "2026-09-02T15:56:04.000Z",
+      "corrupted": false,
+      "private": false
+     },
+     {
+      "attachment_id": "411788296402134084576493961260",
+      "attachment_name": "ATO ORDINATÓRIO 1 - SEM SIGILO (NÍVEL 0) - 1.12KB",
+      "step_id": "bc3d4178",
+      "extension": "html",
+      "tags": {},
+      "status": "pending",
+      "attachment_date": "2026-09-01T21:04:02.000Z",
+      "corrupted": false,
+      "private": false
+     }
+    ],
+    "related_lawsuits": [],
+    "crawler": {
+     "source_name": "JEproc - TJPR - PR - Lawsuit - Auth - 1 instance",
+     "crawl_id": "486c6aee-198e-49e9-a801-9f236dc7ab60",
+     "updated_at": "2026-09-02T18:51:04.800Z",
+     "weight": 10
+    },
+    "status": "ATIVO",
+    "phase": "INICIAL",
+    "phase_history": [],
+    "pipelines": [],
+    "tags": {
+     "dictionary_updated_at": "2026-09-02T18:51:06.612Z",
+     "labor": true
+    },
+    "created_at": "2026-09-02T17:42:52.071Z",
+    "updated_at": "2026-09-02T17:42:52.071Z"
+   },
+   "cached": false,
+   "request_created_at": "2026-09-02T18:51:00.095Z",
+   "tags": {
+    "integration": "exemplo-diagnostic",
+    "lookup_kind": "Cnj",
+    "lookup_key": "60009990020268160021",
+    "lookup_intent_id": "01a06375-ce17-706e-a438-4a47b957d355",
+    "cached_response": false,
+    "cached": false
+   },
+   "created_at": "2026-09-02T18:51:00.225Z",
+   "updated_at": "2026-09-02T18:51:07.854Z"
+  },
+  {
+   "response_id": "92290b84-5e05-4549-ab1e-4563e31e5019",
+   "user_id": "a40f3ba1-9c0d-4668-87f1-7a7585cddc71",
+   "request_id": "07ac3b3c-f417-4402-94e6-782813c5a2b1",
+   "origin": "api",
+   "origin_id": "07ac3b3c-f417-4402-94e6-782813c5a2b1",
+   "response_type": "summary",
+   "response_data": {
+    "data": [
+     "# Resumo do processo\n\nO processo de número <strong className=\"text-primary\">6000999-00.2026.8.16.0021</strong> tramita no <strong>Tribunal de Justiça do Paraná (TJPR)</strong>, na comarca de <strong>Cascavel</strong>, e está em fase <strong>inicial</strong>, com situação <strong>ativa</strong>. Trata-se de uma demanda proposta por <span className=\"font-bold\">MARIA EXEMPLO SOUZA</span> e <span className=\"font-bold\">JOAO EXEMPLO SOUZA</span> em face de <span className=\"font-bold\">EMPRESA EXEMPLO COMERCIO LTDA</span>, envolvendo pedido relacionado à <strong>responsabilidade civil</strong> e <strong>indenização por dano moral</strong>, com valor atribuído de <strong>R$ 30.000,00</strong>.\n\nPelo andamento registrado, o feito foi <strong>distribuído por sorteio</strong> e já passou por movimentações internas de remessa entre setores do juízo. Também consta que foi <strong>incluído no Juízo 100% Digital</strong>, o que indica processamento eletrônico e prática de atos de forma virtual. A movimentação mais relevante até agora é a <strong>designação de audiência de conciliação</strong>, marcada para <strong><span className=\"text-primary\">03/03/2027 às 15:00</span></strong>, indicando que o processo ainda busca uma possível solução amigável entre as partes antes de avançar para outras etapas.\n\n## Partes\n\n<ul>\n  <li>\n    <p>\n      <strong className=\"text-foreground text-base leading-5 font-semibold\">MARIA EXEMPLO SOUZA</strong>\n      <span className=\"text-muted-foreground text-sm\">CPF: ***.444.777-**</span>\n      <br />\n      <p className=\"text-foreground/70 text-md font-normal\">\n        É uma das <strong>autoras</strong> da ação, ou seja, integra o polo que levou o pedido ao Judiciário. Em termos simples, é quem afirma ter sofrido algum prejuízo e busca uma solução judicial, possivelmente uma compensação financeira ou reparação pelos fatos narrados no processo. Está representada pela advogada <strong>ANA EXEMPLO LIMA</strong>.\n      </p>\n      <br className=\"last-of-type:hidden\"/>\n    </p>\n  </li>\n  <li>\n    <p>\n      <strong className=\"text-foreground text-base leading-5 font-semibold\">JOAO EXEMPLO SOUZA</strong>\n      <span className=\"text-muted-foreground text-sm\">CPF: ***.397.191-**</span>\n      <br />\n      <p className=\"text-foreground/70 text-md font-normal\">\n        Também figura como <strong>autor</strong>, participando do lado que apresenta a demanda contra a empresa ré. Isso significa que ele, junto com a outra autora, está buscando a análise do caso pelo juiz para obter uma resposta jurídica sobre a situação discutida. Também possui representação pela advogada <strong>ANA EXEMPLO LIMA</strong>.\n      </p>\n      <br className=\"last-of-type:hidden\"/>\n    </p>\n  </li>\n  <li>\n    <p>\n      <strong className=\"text-foreground text-base leading-5 font-semibold\">ANA EXEMPLO LIMA</strong>\n      <span className=\"text-muted-foreground text-sm\">OAB/PR 0000001</span>\n      <br />\n      <p className=\"text-foreground/70 text-md font-normal\">\n        É a <strong>advogada</strong> que atua na defesa dos interesses dos autores. Sua função é representar as partes no processo, apresentar petições, acompanhar audiências e praticar os atos necessários para conduzir a ação.\n      </p>\n      <br className=\"last-of-type:hidden\"/>\n    </p>\n  </li>\n  <li>\n    <p>\n      <strong className=\"text-foreground text-base leading-5 font-semibold\">EMPRESA EXEMPLO COMERCIO LTDA</strong>\n      <span className=\"text-muted-foreground text-sm\">CNPJ: **.172.255/0001-**</span>\n      <br />\n      <p className=\"text-foreground/70 text-md font-normal\">\n        É a <strong>ré</strong> da ação, isto é, a empresa apontada como responsável pelos fatos discutidos no processo. Em linguagem simples, é quem deverá se defender das alegações feitas pelos autores e apresentar sua versão ao juiz.\n      </p>\n      <br className=\"last-of-type:hidden\"/>\n    </p>\n  </li>\n</ul>\n\n## Classe\n\n<ul>\n  <li>\n    <p>\n      <strong className=\"text-foreground text-base leading-5 font-semibold\">PROCEDIMENTO DO JUIZADO ESPECIAL CÍVEL</strong>\n      <br />\n      <p className=\"text-foreground/70 text-md font-normal\">\n        Essa classe indica que a ação tramita no <strong>Juizado Especial Cível</strong>, um rito mais simples e rápido, voltado para causas de menor complexidade. Em geral, esse tipo de procedimento busca facilitar a solução do conflito com menos formalidades, priorizando a conciliação, a economia processual e uma tramitação mais célere.\n      </p>\n    </p>\n  </li>\n  <li>\n    <p>\n      <strong className=\"text-foreground text-base leading-5 font-semibold\">EMBARGOS</strong>\n      <br />\n      <p className=\"text-foreground/70 text-md font-normal\">\n        Os embargos são uma forma de manifestação processual usada para contestar, esclarecer ou pedir revisão de uma decisão ou ato judicial, dependendo do tipo específico de embargos aplicado no caso. Na prática, servem para apontar possível erro, omissão ou necessidade de reexame de algum ponto já analisado no processo.\n      </p>\n    </p>\n  </li>\n</ul>\n\n## Assuntos\n\n<ul>\n  <li>\n    <p>\n      <strong className=\"text-foreground text-base leading-5 font-semibold\">INDENIZAÇÃO POR DANO MORAL</strong>\n      <br />\n      <p className=\"text-foreground/70 text-md font-normal\">\n        Refere-se ao pedido de compensação financeira por sofrimento, abalo emocional, constrangimento ou ofensa à dignidade que a parte autora entende ter sofrido.\n      </p>\n      <br />\n    </p>\n  </li>\n  <li>\n    <p>\n      <strong className=\"text-foreground text-base leading-5 font-semibold\">RESPONSABILIDADE CIVIL</strong>\n      <br />\n      <p className=\"text-foreground/70 text-md font-normal\">\n        Trata da obrigação de reparar um dano causado a outra pessoa, seja por ação, omissão, negligência ou falha na prestação de um serviço ou produto.\n      </p>\n      <br />\n    </p>\n  </li>\n  <li>\n    <p>\n      <strong className=\"text-foreground text-base leading-5 font-semibold\">DIREITO CIVIL</strong>\n      <br />\n      <p className=\"text-foreground/70 text-md font-normal\">\n        É o ramo do direito que regula relações entre pessoas e empresas em assuntos do dia a dia, como contratos, danos, obrigações e indenizações.\n      </p>\n      <br />\n    </p>\n  </li>\n</ul>\n\n## Movimentações\n\n<p className=\"text-foreground/70\">\n  O processo foi <span className=\"text-primary\">distribuído por sorteio em <span className=\"text-primary\">01/09/2026</span></span>, indicando a distribuição inicial do caso ao juízo competente. Na sequência, o feito foi <strong>incluído no Juízo 100% Digital</strong>, o que significa que os atos processuais tendem a ocorrer de forma eletrônica. Também houve <strong>remessas internas entre setores do cartório/vara</strong>, mostrando a movimentação administrativa dos autos dentro da estrutura judiciária. Em <span className=\"text-primary\">03/03/2027 às 15:00</span>, foi designada <strong>audiência de conciliação</strong>, etapa importante em que se busca um acordo entre <span className=\"font-bold\">MARIA EXEMPLO SOUZA</span>, <span className=\"font-bold\">JOAO EXEMPLO SOUZA</span> e <span className=\"font-bold\">EMPRESA EXEMPLO COMERCIO LTDA</span> antes de eventual avanço para outras fases do processo. Houve ainda atos ordinatórios com encaminhamento para publicação no diário eletrônico, o que demonstra o andamento regular do processo e a prática de comunicações oficiais.\n</p>"
+    ],
+    "origin_id": "f171d401-84c4-4632-809a-b8417c54ba6e",
+    "origin": "response"
+   },
+   "request_created_at": "2026-09-02T18:51:00.225Z",
+   "tags": {
+    "integration": "exemplo-diagnostic",
+    "lookup_kind": "Cnj",
+    "lookup_key": "60009990020268160021",
+    "lookup_intent_id": "01a06375-ce17-706e-a438-4a47b957d355",
+    "callback_url": "https://back-diagnostico.example.com/webhooks/judit/process-lookup/967c147593f910cafc87809145019db2383951f8343d0235"
+   },
+   "created_at": "2026-09-02T18:51:34.740Z",
+   "updated_at": "2026-09-02T18:51:34.740Z"
+  }
+ ]
+}
