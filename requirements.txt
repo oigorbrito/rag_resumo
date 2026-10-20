@@ -1,0 +1,6 @@
+anthropic>=0.40
+numpy>=1.26
+# opcional, para embeddings semânticos melhores:
+# sentence-transformers>=3.0
+# testes:
+pytest>=8

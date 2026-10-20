@@ -1,0 +1,65 @@
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+*.egg
+
+# Ambientes virtuais
+.venv/
+venv/
+env/
+ENV/
+.python-version
+
+# ===== Testes / cobertura =====
+.pytest_cache/
+.cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.mypy_cache/
+.ruff_cache/
+.dmypy.json
+
+# ===== Segredos / credenciais =====
+# Chaves de API (ANTHROPIC_API_KEY, JUDIT_API_KEY, etc.)
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+secrets.*
+credentials.*
+
+# ===== Dados sensíveis (processos e saídas geradas) =====
+# Dados de processos judiciais e resultados não devem ir ao repositório
+processo.json
+resumo*.json
+resumo*.md
+homologacao*.json
+gate*.json
+!exemplo_saida_template.md
+
+# Índices/embeddings gerados (kb/ é versionado)
+indice/
+*.npy
+
+
+# ===== Backups / temporários =====
+*.bak
+*.tmp
+*.swp
+*~
+
+# ===== Sistema / IDE =====
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
