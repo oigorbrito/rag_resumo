@@ -1,6 +1,9 @@
-anthropic>=0.40
-numpy>=1.26
+# Versões testadas: anthropic 0.125.0, numpy 2.5.4, pytest 9.0.3 (Python 3.12)
+anthropic>=0.125,<1
+numpy>=2.5,<3
+
 # opcional, para embeddings semânticos melhores:
 # sentence-transformers>=3.0
+
 # testes:
-pytest>=8
+pytest>=9,<10
