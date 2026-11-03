@@ -12,6 +12,11 @@ OTHER_CNJ = "0009999-99.9999.8.26.9998"
 LAWSUIT = {"code": CNJ, "instance": 1, "secrecy_level": 0, "parties": [], "steps": []}
 
 
+@pytest.fixture(autouse=True)
+def judit_test_key(monkeypatch):
+    monkeypatch.setenv("JUDIT_API_KEY", "test-only-key")
+
+
 def transport_client(responses):
     pending = deque(responses)
     seen = []
