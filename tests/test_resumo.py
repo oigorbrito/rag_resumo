@@ -121,7 +121,7 @@ def test_claude_mock_completa_ids_faltantes(kb):
     cli = FakeClient(entrada)
     [res] = gerar_resumos(PAYLOAD, kb, GeradorClaude(modelo="teste", client=cli))
     kw = cli.chamadas[0]
-    assert kw["tool_choice"] == {"type": "auto"}
+    assert kw["tool_choice"] == {"type": "tool", "name": "registrar_resumo"}
     assert "Intro x." in res.summary_ia               # tag <b> removida
     assert "Autora." in res.summary_ia                # texto do LLM
     assert "polo passivo" in res.summary_ia           # p4 completado pelo template
@@ -129,9 +129,30 @@ def test_claude_mock_completa_ids_faltantes(kb):
     assert res.gerador == "teste" and not res.usou_fallback
 
 
-def test_fallback_quando_api_falha(kb):
+def test_falha_api_nao_usa_template_por_padrao(kb):
     class Quebrado(GeradorClaude):
         def chamar(self, mensagem):
             raise RuntimeError("API fora")
-    [res] = gerar_resumos(PAYLOAD, kb, Quebrado(modelo="x", client=object()))
-    assert res.usou_fallback and res.gerador == "template"
+    with pytest.raises(RuntimeError, match="API fora"):
+        gerar_resumos(PAYLOAD, kb, Quebrado(modelo="x", client=object()))
+
+
+def test_falha_api_usa_fallback_somente_se_permitido(kb):
+    class Quebrado(GeradorClaude):
+        def chamar(self, mensagem):
+            raise RuntimeError("API fora")
+    [res] = gerar_resumos(PAYLOAD, kb, Quebrado(modelo="x", client=object()), fallback_template=True)
+    assert res.gerador == "template" and res.usou_fallback
+
+
+def test_segredo_justica_bloqueado_por_padrao(kb):
+    payload = json.loads(json.dumps(PAYLOAD))
+    payload["page_data"][0]["response_data"]["secrecy_level"] = 1
+    assert gerar_resumos(payload, kb, GeradorTemplate()) == []
+
+
+def test_resposta_sem_tool_use_nao_usa_template(kb):
+    cli = FakeClient({})
+    cli.messages.create = lambda **kw: SimpleNamespace(content=[], stop_reason="end_turn")
+    with pytest.raises(RuntimeError, match="sem tool_use"):
+        gerar_resumos(PAYLOAD, kb, GeradorClaude(modelo="teste", client=cli))

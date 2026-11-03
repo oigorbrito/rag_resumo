@@ -160,6 +160,8 @@ class GeradorClaude:
     @property
     def client(self):
         if self._client is None:
+            from dotenv import load_dotenv
+            load_dotenv(override=False)
             import anthropic
             self._client = anthropic.Anthropic()  # lê ANTHROPIC_API_KEY do ambiente
         return self._client
@@ -170,7 +172,7 @@ class GeradorClaude:
             max_tokens=self.max_tokens,
             system=[{"type": "text", "text": SYSTEM_PROMPT, "cache_control": {"type": "ephemeral"}}],
             tools=[TOOL],
-            tool_choice={"type": "auto"},
+            tool_choice={"type": "tool", "name": TOOL["name"]},
             messages=[{"role": "user", "content": mensagem}],
         )
         for bloco in resp.content:
