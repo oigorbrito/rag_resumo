@@ -1,5 +1,7 @@
 # Versões testadas: anthropic 0.125.0, numpy 2.5.4, pytest 9.0.3 (Python 3.12)
 anthropic>=0.125,<1
+httpx>=0.27,<1
+python-dotenv>=1,<2
 numpy>=2.5,<3
 
 # opcional, para embeddings semânticos melhores:
