@@ -142,6 +142,7 @@ class Fatos:
     assuntos: list[ItemCadastro]
     movimentos: list[Movimento]
     alertas: list[str]
+    data_ajuizamento: str | None = None
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -322,6 +323,7 @@ def extrair_fatos(d: dict) -> Fatos:
         status=SITUACOES.get(norm(d.get("status")), (d.get("status") or "").lower() or None),
         valor_causa=fmt_moeda(d.get("amount")),
         data_distribuicao=fmt_data(para_local(d.get("distribution_date"))),
+        data_ajuizamento=fmt_data(para_local(d.get("filing_date"))),
         juizo_100_digital=any(m.tipo == "juizo_100_digital" for m in movs),
         citacao_registrada=any(m.tipo == "citacao" for m in movs),
         segredo_justica=bool(d.get("secrecy_level")),

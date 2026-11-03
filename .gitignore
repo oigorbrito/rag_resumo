@@ -43,6 +43,7 @@ credentials.*
 processo.json
 resumo*.json
 resumo*.md
+summary_ia.md
 homologacao*.json
 gate*.json
 

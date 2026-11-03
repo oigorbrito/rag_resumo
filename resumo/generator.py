@@ -120,19 +120,32 @@ class GeradorTemplate:
               f"<strong>{trib}</strong>"
               + (f", na comarca de <strong>{f.comarca}</strong>" if f.comarca else "")
               + (f", e está em fase <strong>{f.fase}</strong>" if f.fase else "")
-              + (f", com situação <strong>{f.status}</strong>" if f.status else "") + ". "
-              + f"Trata-se de uma demanda proposta por {_nomes(autores)} em face de {_nomes(reus)}"
-              + (f", envolvendo {_lista(assuntos)}" if assuntos else "")
-              + (f", com valor atribuído de <strong>{f.valor_causa}</strong>" if f.valor_causa else "") + ".")
+              + (f", com situação <strong>{f.status}</strong>" if f.status else "") + ".")
+        if autores and reus:
+            p1 += f" Trata-se de uma demanda proposta por {_nomes(autores)} em face de {_nomes(reus)}"
+        if assuntos:
+            p1 += (f", envolvendo {_lista(assuntos)}" if autores and reus
+                   else f" O cadastro informa os assuntos {_lista(assuntos)}")
+        if f.valor_causa:
+            p1 += (f", com valor atribuído de <strong>{f.valor_causa}</strong>" if autores and reus
+                   else f" O valor da causa informado é <strong>{f.valor_causa}</strong>")
+        p1 += "."
         aud = next((m for m in f.movimentos if m.tipo == "audiencia_designada"), None)
-        p2 = ("Pelo andamento registrado, o feito foi <strong>distribuído</strong>"
-              + (f" em {_data(f.data_distribuicao)}" if f.data_distribuicao else "")
-              + (" e <strong>incluído no Juízo 100% Digital</strong>" if f.juizo_100_digital else "") + ".")
+        if f.data_ajuizamento:
+            p2 = f"A data de ajuizamento registrada é {_data(f.data_ajuizamento)}."
+            if f.data_distribuicao:
+                p2 += f" A distribuição registrada ocorreu em {_data(f.data_distribuicao)}."
+            if f.juizo_100_digital:
+                p2 += " O processo foi <strong>incluído no Juízo 100% Digital</strong>."
+        else:
+            p2 = ("Pelo andamento registrado, o feito foi <strong>distribuído</strong>"
+                  + (f" em {_data(f.data_distribuicao)}" if f.data_distribuicao else "")
+                  + (" e <strong>incluído no Juízo 100% Digital</strong>" if f.juizo_100_digital else "") + ".")
         if aud and aud.detalhes.get("data_agendada"):
             p2 += (f" A movimentação mais relevante até agora é a <strong>designação de audiência"
                    f"{' de ' + aud.detalhes.get('modalidade', '') if aud.detalhes.get('modalidade') else ''}</strong>, "
                    f"marcada para <strong>{_data(aud.detalhes['data_agendada'])}</strong>.")
-        if not f.citacao_registrada:
+        if not f.citacao_registrada and reus:
             p2 += " Ainda não há registro de citação da parte ré."
         return [p1, p2]
 
