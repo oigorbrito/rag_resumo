@@ -8,11 +8,10 @@ import os
 import sys
 import uuid
 from pathlib import Path
-from urllib.parse import urljoin
-
 import httpx
+from dotenv import load_dotenv
 
-BASE = 'https://requests.prod.judit.io'
+BASE = 'https://requests.production.judit.io'
 
 
 def recuperar(request_id: str, chave: str, cliente: httpx.Client):
@@ -45,6 +44,7 @@ def recuperar(request_id: str, chave: str, cliente: httpx.Client):
 
 
 def main():
+    load_dotenv(override=False)
     parser = argparse.ArgumentParser(description='Recuperar resposta Judit existente, sem POST')
     parser.add_argument('--request-id', required=True)
     parser.add_argument('--saida', default='processo.json')

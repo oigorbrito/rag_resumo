@@ -45,6 +45,7 @@ resumo*.json
 resumo*.md
 homologacao*.json
 gate*.json
+relatorio_e2e.json
 
 # Índices/embeddings gerados (kb/ é versionado)
 indice/
