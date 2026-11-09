@@ -50,3 +50,12 @@ def test_claude_completo_passa():
     }
     out = GeradorClaude(modelo="teste", client=_cliente(entrada)).gerar(fatos, ctx)
     assert out["introducao"] == ["Texto da introdução."]
+
+
+def test_resposta_cortada_por_max_tokens_falha():
+    fatos, ctx = _fatos_e_ctx()
+    bloco = SimpleNamespace(type="tool_use", name="registrar_resumo", input={"introducao": ["x"]})
+    resp = SimpleNamespace(content=[bloco], stop_reason="max_tokens")
+    cli = SimpleNamespace(messages=SimpleNamespace(create=lambda **kw: resp))
+    with pytest.raises(RuntimeError, match="cortada pelo limite"):
+        GeradorClaude(modelo="teste", client=cli).gerar(fatos, ctx)

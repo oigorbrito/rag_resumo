@@ -163,7 +163,7 @@ class GeradorTemplate:
 # Gerador com Claude (RAG)
 # ======================================================================
 class GeradorClaude:
-    def __init__(self, modelo: str = MODELO_PADRAO, max_tokens: int = 4096, client=None):
+    def __init__(self, modelo: str = MODELO_PADRAO, max_tokens: int = 8192, client=None):
         self.modelo = modelo
         self.nome = modelo
         self.max_tokens = max_tokens
@@ -186,6 +186,9 @@ class GeradorClaude:
             tool_choice={"type": "auto"},  # forçar a ferramenta gera HTTP 400 com o modelo padrão
             messages=[{"role": "user", "content": mensagem}],
         )
+        if resp.stop_reason == "max_tokens":
+            # Resposta cortada: a ferramenta fica incompleta e campos finais somem. Falhar explicitamente.
+            raise RuntimeError(f"Resposta do Claude cortada pelo limite de {self.max_tokens} tokens")
         for bloco in resp.content:
             if bloco.type == "tool_use" and bloco.name == TOOL["name"]:
                 return dict(bloco.input)
