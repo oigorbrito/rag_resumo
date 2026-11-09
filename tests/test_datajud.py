@@ -1,5 +1,10 @@
+from types import SimpleNamespace
+
+import pytest
+
 from resumo.generator import GeradorTemplate
 from resumo.parser import extrair_fatos
+from scripts import gerar_datajud
 from scripts.gerar_datajud import converter_datajud, formatar_cnj
 
 
@@ -37,6 +42,18 @@ def test_converter_mantem_campos_datajud_sem_inventar_partes():
         ("Juntada de documento", "03/05/2020"),
     ]
     assert fatos.partes == []
+
+
+def test_tribunal_so_aceita_endpoint_listado_na_wiki(monkeypatch):
+    docs = SimpleNamespace(
+        status_code=200,
+        text='https://api-publica.datajud.cnj.jus.br/api_publica_tjsp/_search',
+    )
+    monkeypatch.setattr(gerar_datajud.httpx, "get", lambda *args, **kwargs: docs)
+
+    assert gerar_datajud.endpoint_oficial("TJSP").endswith("api_publica_tjsp/_search")
+    with pytest.raises(ValueError, match="não listado"):
+        gerar_datajud.endpoint_oficial("tribunal-inventado")
 
 
 def test_template_nao_inventa_partes_ou_citacao_sem_dados():

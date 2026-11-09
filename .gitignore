@@ -69,3 +69,6 @@ indice/
 Thumbs.db
 .idea/
 .vscode/
+
+# Relatórios de execução (contêm dados do processo; não versionar)
+relatorio*.json

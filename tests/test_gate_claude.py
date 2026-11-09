@@ -36,11 +36,11 @@ def test_exigir_claude_falha_sem_publicar(monkeypatch, tmp_path, caplog):
     assert "RuntimeError" in caplog.text
 
 
-def test_modo_original_mantem_fallback_padrao(monkeypatch, tmp_path):
+def test_permitir_template_mantem_fallback(monkeypatch, tmp_path):
     def entrega(*args, **kwargs):
         assert kwargs["fallback_template"] is True
         return [SimpleNamespace(cnj="teste", summary_ia="texto", gerador="template", usou_fallback=True, alertas=[], fontes=[])]
-    saida = run_cli(monkeypatch, tmp_path, [], entrega)
+    saida = run_cli(monkeypatch, tmp_path, ["--permitir-template"], entrega)
     CLI.main()
     doc = json.loads(saida.read_text(encoding="utf-8"))
     assert doc[0]["gerador"] == "template"

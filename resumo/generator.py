@@ -183,7 +183,7 @@ class GeradorClaude:
             max_tokens=self.max_tokens,
             system=[{"type": "text", "text": SYSTEM_PROMPT, "cache_control": {"type": "ephemeral"}}],
             tools=[TOOL],
-            tool_choice={"type": "auto"},
+            tool_choice={"type": "auto"},  # forçar a ferramenta gera HTTP 400 com o modelo padrão
             messages=[{"role": "user", "content": mensagem}],
         )
         for bloco in resp.content:
@@ -193,19 +193,35 @@ class GeradorClaude:
 
     def gerar(self, fatos: Fatos, ctx: dict[str, list[Trecho]]) -> dict:
         bruto = self.chamar(montar_mensagem(fatos, ctx))
-        return completar(bruto, self._fallback.gerar(fatos, ctx))
+        out, faltantes = completar(bruto, self._fallback.gerar(fatos, ctx))
+        if faltantes:
+            # Não misturar texto do Claude com texto de template no mesmo resumo.
+            raise RuntimeError(f"Claude não devolveu seções obrigatórias: {', '.join(faltantes)}")
+        return out
 
 
-def completar(secoes: dict, padrao: dict) -> dict:
-    """Garante todos os ids esperados: descarta ids desconhecidos e preenche os
-    que o LLM esqueceu com o texto do template."""
+def completar(secoes: dict, padrao: dict) -> tuple[dict, list[str]]:
+    """Valida os ids devolvidos pelo LLM. Retorna (saída, ids que faltaram).
+
+    Ids desconhecidos são descartados. Seções faltantes são preenchidas com o template
+    apenas para montar a estrutura; quem chama decide se isso é aceitável."""
+    faltantes: list[str] = []
     out = {
         "introducao": [p for p in secoes.get("introducao") or [] if isinstance(p, str) and p.strip()]
                       or padrao["introducao"],
         "movimentacoes": (secoes.get("movimentacoes") or "").strip() or padrao["movimentacoes"],
     }
+    if not (secoes.get("introducao") or []):
+        faltantes.append("introducao")
+    if not (secoes.get("movimentacoes") or "").strip():
+        faltantes.append("movimentacoes")
     for chave, campo in (("partes", "descricao"), ("classes", "explicacao"), ("assuntos", "explicacao")):
         dados = {x.get("id"): x.get(campo) for x in secoes.get(chave) or [] if isinstance(x, dict)}
-        out[chave] = [{"id": p["id"], campo: (dados.get(p["id"]) or "").strip() or p[campo]}
-                      for p in padrao[chave]]
-    return out
+        itens = []
+        for p in padrao[chave]:
+            texto = (dados.get(p["id"]) or "").strip()
+            if not texto:
+                faltantes.append(f"{chave}:{p['id']}")
+            itens.append({"id": p["id"], campo: texto or p[campo]})
+        out[chave] = itens
+    return out, faltantes

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Busca um processo público no DataJud e gera summary_ia pelo pipeline local.
 
-Uso: python scripts/gerar_datajud.py <CNJ> --saida resumo_datajud.md
+Uso: python scripts/gerar_datajud.py <CNJ> --tribunal trf1 --gerador template --saida summary_ia.md
 """
 from __future__ import annotations
 
@@ -20,13 +20,14 @@ from dotenv import load_dotenv
 RAIZ = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RAIZ))
 
-from resumo.generator import GeradorTemplate  # noqa: E402
+from resumo.generator import GeradorClaude, GeradorTemplate  # noqa: E402
 from resumo.knowledge import BaseConhecimento  # noqa: E402
 from resumo.parser import extrair_fatos, para_local, fmt_data, norm  # noqa: E402
 from resumo.pipeline import gerar_resumos  # noqa: E402
 
 WIKI_ACESSO = "https://datajud-wiki.cnj.jus.br/api-publica/acesso"
-URL_TRF1 = "https://api-publica.datajud.cnj.jus.br/api_publica_trf1/_search"
+WIKI_ENDPOINTS = "https://datajud-wiki.cnj.jus.br/api-publica/endpoints"
+ENDPOINT_RE = re.compile(r"https://api-publica\.datajud\.cnj\.jus\.br/(api_publica_[a-z0-9]+)/_search", re.I)
 
 
 class _TextoHTML(HTMLParser):
@@ -58,6 +59,23 @@ def chave_publica() -> str:
     if not m:
         raise RuntimeError("Chave pública vigente não localizada na documentação oficial do CNJ.")
     return m.group(1)
+
+
+def endpoint_oficial(tribunal: str) -> str:
+    """Resolve apenas URLs listadas na documentação oficial do DataJud."""
+    alias = tribunal.strip().lower()
+    if not alias.startswith("api_publica_"):
+        alias = "api_publica_" + alias
+    try:
+        resposta = httpx.get(WIKI_ENDPOINTS, timeout=25, trust_env=False, follow_redirects=True)
+    except httpx.RequestError as exc:
+        raise RuntimeError(f"Não foi possível acessar os endpoints do CNJ ({type(exc).__name__}).") from None
+    if resposta.status_code != 200:
+        raise RuntimeError(f"Documentação de endpoints retornou HTTP {resposta.status_code}.")
+    oficiais = {m.group(1).lower(): m.group(0) for m in ENDPOINT_RE.finditer(resposta.text)}
+    if alias not in oficiais:
+        raise ValueError("Tribunal não listado na documentação oficial do DataJud.")
+    return oficiais[alias]
 
 
 def _data_iso(valor):
@@ -120,13 +138,16 @@ def main() -> None:
     ap.add_argument("cnj", help="número CNJ com ou sem pontuação")
     ap.add_argument("--indice", default=str(RAIZ / "indice" / "kb"))
     ap.add_argument("--saida", default="resumo_datajud.md")
+    ap.add_argument("--tribunal", default="trf1", help="alias oficial DataJud, por exemplo: trf1, tjsp")
+    ap.add_argument("--gerador", choices=("template", "claude"), default="template")
     args = ap.parse_args()
     numero = re.sub(r"\D", "", args.cnj)
     formatar_cnj(numero)
     try:
         key = chave_publica()
+        endpoint = endpoint_oficial(args.tribunal)
         resposta = httpx.post(
-            URL_TRF1,
+            endpoint,
             headers={"Authorization": f"APIKey {key}", "Content-Type": "application/json"},
             json={"query": {"match": {"numeroProcesso": numero}}},
             timeout=90, trust_env=False, follow_redirects=False,
@@ -135,7 +156,7 @@ def main() -> None:
         raise SystemExit("DataJud: timeout; nenhuma resposta HTTP recebida.") from None
     except httpx.RequestError as exc:
         raise SystemExit(f"DataJud: erro de transporte ({type(exc).__name__}).") from None
-    except RuntimeError as exc:
+    except (RuntimeError, ValueError) as exc:
         raise SystemExit(str(exc)) from None
     if resposta.status_code != 200:
         raise SystemExit(f"DataJud retornou HTTP {resposta.status_code}; resposta não registrada.")
@@ -158,7 +179,20 @@ def main() -> None:
     if not indice.with_suffix(".json").exists():
         raise SystemExit(f"Índice RAG não encontrado em {indice}; rode scripts/indexar.py.")
     kb = BaseConhecimento.carregar(indice)
-    resultados = gerar_resumos(payload, kb, GeradorTemplate())
+    load_dotenv(RAIZ / ".env", override=False)
+    if args.gerador == "claude" and not os.getenv("ANTHROPIC_API_KEY"):
+        raise SystemExit("ANTHROPIC_API_KEY ausente; nenhum novo resumo foi publicado.")
+    gerador = GeradorTemplate() if args.gerador == "template" else GeradorClaude()
+    try:
+        resultados = gerar_resumos(payload, kb, gerador, fallback_template=False)
+    except Exception as exc:
+        if args.gerador == "claude":
+            status = getattr(exc, "status_code", None)
+            detalhe = f"HTTP {status}" if status else type(exc).__name__
+            mensagem = f"Claude falhou ({detalhe})"
+        else:
+            mensagem = f"Template falhou ({type(exc).__name__})"
+        raise SystemExit(f"{mensagem}; nenhum novo resumo foi publicado.") from None
     if not resultados:
         raise SystemExit("Nenhum resumo elegível foi produzido (verifique sigilo de justiça).")
     resultado = resultados[0]
@@ -166,7 +200,7 @@ def main() -> None:
         raise SystemExit("CNJ do summary_ia não confere com a fonte DataJud.")
     Path(args.saida).write_text(resultado.summary_ia, encoding="utf-8")
     print(f"DataJud HTTP 200; parser: {len(fatos.movimentos)} movimentações conferidas; "
-          f"RAG: {len(resultado.fontes)} fontes; summary_ia: {args.saida}")
+          f"RAG: {len(resultado.fontes)} fontes; gerador={resultado.gerador}; summary_ia: {args.saida}")
 
 
 if __name__ == "__main__":

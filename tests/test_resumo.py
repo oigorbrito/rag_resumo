@@ -115,18 +115,16 @@ class FakeClient:
         return SimpleNamespace(content=[bloco], stop_reason="tool_use")
 
 
-def test_claude_mock_completa_ids_faltantes(kb):
+def test_claude_mock_ids_faltantes_viram_fallback(kb):
+    # Seções faltantes não são mais completadas com template: o pipeline cai no template inteiro.
     entrada = {"introducao": ["Intro <b>x</b>."], "partes": [{"id": "p1", "descricao": "Autora."}],
                "classes": [], "assuntos": [{"id": "zzz", "explicacao": "lixo"}], "movimentacoes": "Movs."}
     cli = FakeClient(entrada)
     [res] = gerar_resumos(PAYLOAD, kb, GeradorClaude(modelo="teste", client=cli))
     kw = cli.chamadas[0]
     assert kw["tool_choice"] == {"type": "auto"}
-    assert "Intro x." in res.summary_ia               # tag <b> removida
-    assert "Autora." in res.summary_ia                # texto do LLM
-    assert "polo passivo" in res.summary_ia           # p4 completado pelo template
-    assert "lixo" not in res.summary_ia               # id desconhecido descartado
-    assert res.gerador == "teste" and not res.usou_fallback
+    assert res.usou_fallback and res.gerador == "template"
+    assert "lixo" not in res.summary_ia               # id desconhecido nunca entra no texto
 
 
 def test_fallback_quando_api_falha(kb):
