@@ -176,5 +176,5 @@ def test_manifest_offline_hashes_and_labels_template(tmp_path, monkeypatch):
     assert report["generator_effective"] == "template"
     assert report["model"]["effective"] is None
     assert report["rag"]["source_ids_exist_in_index"] is True
-    assert report["gates"]["factual"] == "NOT_PERFORMED"
+    assert report["gates"]["factual"] == "PASS_PARCIAL_DATAS_VALORES"
     assert report["process_ids_sha256"] and payload["page_data"][0]["response_data"]["code"] not in manifesto.read_text(encoding="utf-8")

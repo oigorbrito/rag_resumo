@@ -5,6 +5,7 @@ import hashlib
 import json
 import re
 import sys
+import uuid
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -12,6 +13,7 @@ sys.path.insert(0, str(ROOT))
 
 from dotenv import load_dotenv  # noqa: E402
 from resumo.generator import MODELO_PADRAO, GeradorClaude, GeradorTemplate  # noqa: E402
+from resumo import checagem  # noqa: E402
 from resumo.judit import ClienteJudit, JuditError  # noqa: E402
 from resumo.knowledge import BaseConhecimento  # noqa: E402
 from resumo.parser import extrair_fatos, extrair_processos  # noqa: E402
@@ -37,6 +39,20 @@ def _categoria_claude(exc: Exception) -> str:
     if type(exc).__name__ in {"APIConnectionError", "APITimeoutError", "TimeoutException"}:
         return "FAILED_TRANSPORT"
     return "FAILED_GENERATION"
+
+
+def _relatorios_do_request(pasta: Path, request_id: str) -> list[str]:
+    """Relatórios PASS/OFFLINE_ONLY já gerados para este request-id na pasta."""
+    achados = []
+    for arq in sorted(pasta.glob("*.json")):
+        try:
+            d = json.loads(arq.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if isinstance(d, dict) and (d.get("input") or {}).get("id") == request_id \
+                and d.get("status") in {"PASS", "OFFLINE_ONLY"}:
+            achados.append(arq.name)
+    return achados
 
 
 def _documentos_completos(value) -> set[str]:
@@ -83,6 +99,8 @@ def _validar(payload: dict, resultados: list, kb: BaseConhecimento | None = None
             erros.append("fonte RAG ausente do índice")
         if r.usou_fallback:
             erros.append("fallback utilizado; gate de gerador principal não aprovado")
+        dados_fatos = [f.to_dict() for f in fatos if f.cnj == r.cnj]
+        erros.extend(checagem.verificar(r.summary_ia, payload, dados_fatos))
     return sorted(set(erros))
 
 
@@ -117,7 +135,7 @@ def _manifesto(payload: dict, origem: str, input_id: str, input_hash: str,
             "rag": "PASS" if sources and (kb is None or set(sources).issubset({e["id"] for e in kb.entradas})) else "FAIL",
             "generator": "PASS" if generator_effective not in (None, "template") and not any(r.usou_fallback for r in results) else "OFFLINE_ONLY",
             "structural": "PASS" if not errors else "FAIL",
-            "factual": "NOT_PERFORMED",
+            "factual": "PASS_PARCIAL_DATAS_VALORES" if not errors else "FAIL_DATAS_VALORES",
         },
         "summary_sha256": artifact_hash,
         "summary_count": len(results),
@@ -149,6 +167,19 @@ def main() -> int:
     ap.add_argument("--timeout", type=float, default=300)
     ap.add_argument("--intervalo", type=float, default=3)
     args = ap.parse_args()
+
+    # Bloqueios ANTES de qualquer chamada à Judit ou ao Claude (evita cobrança desnecessária).
+    if args.saida.exists() or args.relatorio.exists():
+        print("BLOCKED_OUTPUT_EXISTS: saída ou relatório já existe; nenhuma chamada foi feita. "
+              "Escolha outros nomes ou remova os arquivos antigos.", file=sys.stderr)
+        return 2
+    if args.request_id:
+        rid = str(uuid.UUID(args.request_id))
+        ja_gerados = _relatorios_do_request(args.relatorio.parent, rid)
+        if ja_gerados:
+            print(f"BLOCKED_REQUEST_ALREADY_PROCESSED: request {rid} já tem resumo aprovado "
+                  f"({', '.join(ja_gerados)}); nenhuma chamada foi feita.", file=sys.stderr)
+            return 2
 
     origem = "consulta_cnj" if args.cnj else "request_id" if args.request_id else "arquivo"
     input_id = args.request_id or "pending"

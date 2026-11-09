@@ -53,6 +53,8 @@ def lawsuit_item(instance=1, *, response_id="r1", cached=None, cnj=CNJ, request_
 
 
 def test_consulta_cnj_post_poll_get_y_normaliza_resposta():
+    import os
+    os.environ.pop('JUDIT_CALLBACK_URL', None)  # isola o teste da configuração local
     client, seen = transport_client([
         (201, {"request_id": REQUEST_ID}),
         (200, status_payload("pending")), (200, status_payload("completed")),

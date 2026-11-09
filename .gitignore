@@ -43,6 +43,7 @@ credentials.*
 processo.json
 resumo*.json
 resumo*.md
+summary_ia.md
 homologacao*.json
 gate*.json
 relatorio_e2e.json
@@ -69,3 +70,6 @@ indice/
 Thumbs.db
 .idea/
 .vscode/
+
+# Relatórios de execução (contêm dados do processo; não versionar)
+relatorio*.json

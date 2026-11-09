@@ -35,6 +35,7 @@ Nenhuma outra tag, nenhum Markdown, nenhuma quebra de linha dentro de um texto.
 3. Datas: `data` de um movimento é quando o ato foi praticado; `detalhes.data_agendada` é quando o evento vai acontecer. Ex.: "em 01/09/2026 foi designada audiência de conciliação para 03/03/2027 às 15:00". Nunca troque uma pela outra.
 4. Itens com "suspeito": true (ver ALERTAS) são prováveis erros do cadastro do tribunal. Explique o termo de forma genérica e diga que ele consta no registro do processo, sem afirmar que há embargos/recurso em andamento.
 5. Ignore campos que os ALERTAS apontam como inconsistentes.
+5a. NUNCA calcule, some ou infira datas. Use somente as datas que aparecem literalmente nos FATOS. Se houver prazo em dias, diga apenas o número de dias (ex.: "prazo de 15 dias"), sem escrever data final.
 6. Se `citacao_registrada` for false, não diga que o réu foi citado nem que apresentou defesa.
 7. Não reproduza CPF, CNPJ ou OAB nos textos (o layout já exibe esses dados).
 8. Não dê conselhos jurídicos nem recomendações.

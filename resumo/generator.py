@@ -120,19 +120,32 @@ class GeradorTemplate:
               f"<strong>{trib}</strong>"
               + (f", na comarca de <strong>{f.comarca}</strong>" if f.comarca else "")
               + (f", e está em fase <strong>{f.fase}</strong>" if f.fase else "")
-              + (f", com situação <strong>{f.status}</strong>" if f.status else "") + ". "
-              + f"Trata-se de uma demanda proposta por {_nomes(autores)} em face de {_nomes(reus)}"
-              + (f", envolvendo {_lista(assuntos)}" if assuntos else "")
-              + (f", com valor atribuído de <strong>{f.valor_causa}</strong>" if f.valor_causa else "") + ".")
+              + (f", com situação <strong>{f.status}</strong>" if f.status else "") + ".")
+        if autores and reus:
+            p1 += f" Trata-se de uma demanda proposta por {_nomes(autores)} em face de {_nomes(reus)}"
+        if assuntos:
+            p1 += (f", envolvendo {_lista(assuntos)}" if autores and reus
+                   else f" O cadastro informa os assuntos {_lista(assuntos)}")
+        if f.valor_causa:
+            p1 += (f", com valor atribuído de <strong>{f.valor_causa}</strong>" if autores and reus
+                   else f" O valor da causa informado é <strong>{f.valor_causa}</strong>")
+        p1 += "."
         aud = next((m for m in f.movimentos if m.tipo == "audiencia_designada"), None)
-        p2 = ("Pelo andamento registrado, o feito foi <strong>distribuído</strong>"
-              + (f" em {_data(f.data_distribuicao)}" if f.data_distribuicao else "")
-              + (" e <strong>incluído no Juízo 100% Digital</strong>" if f.juizo_100_digital else "") + ".")
+        if f.data_ajuizamento:
+            p2 = f"A data de ajuizamento registrada é {_data(f.data_ajuizamento)}."
+            if f.data_distribuicao:
+                p2 += f" A distribuição registrada ocorreu em {_data(f.data_distribuicao)}."
+            if f.juizo_100_digital:
+                p2 += " O processo foi <strong>incluído no Juízo 100% Digital</strong>."
+        else:
+            p2 = ("Pelo andamento registrado, o feito foi <strong>distribuído</strong>"
+                  + (f" em {_data(f.data_distribuicao)}" if f.data_distribuicao else "")
+                  + (" e <strong>incluído no Juízo 100% Digital</strong>" if f.juizo_100_digital else "") + ".")
         if aud and aud.detalhes.get("data_agendada"):
             p2 += (f" A movimentação mais relevante até agora é a <strong>designação de audiência"
                    f"{' de ' + aud.detalhes.get('modalidade', '') if aud.detalhes.get('modalidade') else ''}</strong>, "
                    f"marcada para <strong>{_data(aud.detalhes['data_agendada'])}</strong>.")
-        if not f.citacao_registrada:
+        if not f.citacao_registrada and reus:
             p2 += " Ainda não há registro de citação da parte ré."
         return [p1, p2]
 
@@ -150,7 +163,7 @@ class GeradorTemplate:
 # Gerador com Claude (RAG)
 # ======================================================================
 class GeradorClaude:
-    def __init__(self, modelo: str = MODELO_PADRAO, max_tokens: int = 4096, client=None):
+    def __init__(self, modelo: str = MODELO_PADRAO, max_tokens: int = 8192, client=None):
         self.modelo = modelo
         self.nome = modelo
         self.max_tokens = max_tokens
@@ -161,7 +174,7 @@ class GeradorClaude:
     def client(self):
         if self._client is None:
             from dotenv import load_dotenv
-            load_dotenv(override=False)
+            load_dotenv(override=False)  # variáveis já exportadas têm precedência
             import anthropic
             self._client = anthropic.Anthropic()  # lê ANTHROPIC_API_KEY do ambiente
         return self._client
@@ -172,9 +185,12 @@ class GeradorClaude:
             max_tokens=self.max_tokens,
             system=[{"type": "text", "text": SYSTEM_PROMPT, "cache_control": {"type": "ephemeral"}}],
             tools=[TOOL],
-            tool_choice={"type": "tool", "name": TOOL["name"]},
+            tool_choice={"type": "auto"},  # forçar a ferramenta gera HTTP 400 com o modelo padrão
             messages=[{"role": "user", "content": mensagem}],
         )
+        if resp.stop_reason == "max_tokens":
+            # Resposta cortada: a ferramenta fica incompleta e campos finais somem. Falhar explicitamente.
+            raise RuntimeError(f"Resposta do Claude cortada pelo limite de {self.max_tokens} tokens")
         for bloco in resp.content:
             if bloco.type == "tool_use" and bloco.name == TOOL["name"]:
                 return dict(bloco.input)
@@ -182,19 +198,35 @@ class GeradorClaude:
 
     def gerar(self, fatos: Fatos, ctx: dict[str, list[Trecho]]) -> dict:
         bruto = self.chamar(montar_mensagem(fatos, ctx))
-        return completar(bruto, self._fallback.gerar(fatos, ctx))
+        out, faltantes = completar(bruto, self._fallback.gerar(fatos, ctx))
+        if faltantes:
+            # Não misturar texto do Claude com texto de template no mesmo resumo.
+            raise RuntimeError(f"Claude não devolveu seções obrigatórias: {', '.join(faltantes)}")
+        return out
 
 
-def completar(secoes: dict, padrao: dict) -> dict:
-    """Garante todos os ids esperados: descarta ids desconhecidos e preenche os
-    que o LLM esqueceu com o texto do template."""
+def completar(secoes: dict, padrao: dict) -> tuple[dict, list[str]]:
+    """Valida os ids devolvidos pelo LLM. Retorna (saída, ids que faltaram).
+
+    Ids desconhecidos são descartados. Seções faltantes são preenchidas com o template
+    apenas para montar a estrutura; quem chama decide se isso é aceitável."""
+    faltantes: list[str] = []
     out = {
         "introducao": [p for p in secoes.get("introducao") or [] if isinstance(p, str) and p.strip()]
                       or padrao["introducao"],
         "movimentacoes": (secoes.get("movimentacoes") or "").strip() or padrao["movimentacoes"],
     }
+    if not (secoes.get("introducao") or []):
+        faltantes.append("introducao")
+    if not (secoes.get("movimentacoes") or "").strip():
+        faltantes.append("movimentacoes")
     for chave, campo in (("partes", "descricao"), ("classes", "explicacao"), ("assuntos", "explicacao")):
         dados = {x.get("id"): x.get(campo) for x in secoes.get(chave) or [] if isinstance(x, dict)}
-        out[chave] = [{"id": p["id"], campo: (dados.get(p["id"]) or "").strip() or p[campo]}
-                      for p in padrao[chave]]
-    return out
+        itens = []
+        for p in padrao[chave]:
+            texto = (dados.get(p["id"]) or "").strip()
+            if not texto:
+                faltantes.append(f"{chave}:{p['id']}")
+            itens.append({"id": p["id"], campo: texto or p[campo]})
+        out[chave] = itens
+    return out, faltantes

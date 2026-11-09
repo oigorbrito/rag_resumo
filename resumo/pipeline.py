@@ -26,7 +26,7 @@ class ResultadoResumo:
 
 
 def gerar_resumos(payload: dict, kb: BaseConhecimento, gerador=None,
-                  permitir_segredo: bool = False, fallback_template: bool = False) -> list[ResultadoResumo]:
+                  permitir_segredo: bool = False, fallback_template: bool = True) -> list[ResultadoResumo]:
     gerador = gerador or GeradorClaude()
     resultados = []
     if "page_data" in payload:

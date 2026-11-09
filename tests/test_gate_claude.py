@@ -36,22 +36,11 @@ def test_exigir_claude_falha_sem_publicar(monkeypatch, tmp_path, caplog):
     assert "RuntimeError" in caplog.text
 
 
-def test_padrao_nao_permite_fallback(monkeypatch, tmp_path):
-    def falha(*args, **kwargs):
-        assert kwargs["fallback_template"] is False
-        raise RuntimeError("API fora")
-    saida = run_cli(monkeypatch, tmp_path, [], falha)
-    with pytest.raises(SystemExit) as exc:
-        CLI.main()
-    assert exc.value.code == 1
-    assert not saida.exists()
-
-
-def test_template_somente_explicitamente(monkeypatch, tmp_path):
+def test_permitir_template_mantem_fallback(monkeypatch, tmp_path):
     def entrega(*args, **kwargs):
         assert kwargs["fallback_template"] is True
-        return [SimpleNamespace(cnj="teste", summary_ia="texto", gerador="template", usou_fallback=False, alertas=[], fontes=[])]
-    saida = run_cli(monkeypatch, tmp_path, ["--sem-llm"], entrega)
+        return [SimpleNamespace(cnj="teste", summary_ia="texto", gerador="template", usou_fallback=True, alertas=[], fontes=[])]
+    saida = run_cli(monkeypatch, tmp_path, ["--permitir-template"], entrega)
     CLI.main()
     doc = json.loads(saida.read_text(encoding="utf-8"))
     assert doc[0]["gerador"] == "template"

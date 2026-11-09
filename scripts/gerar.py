@@ -15,6 +15,7 @@ from pathlib import Path
 RAIZ = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RAIZ))
 
+from dotenv import load_dotenv  # noqa: E402
 from resumo.generator import MODELO_PADRAO, GeradorClaude, GeradorTemplate  # noqa: E402
 from resumo.knowledge import BaseConhecimento  # noqa: E402
 from resumo.parser import extrair_fatos, extrair_processos  # noqa: E402
@@ -28,13 +29,20 @@ def main():
     ap.add_argument("--indice", default=str(RAIZ / "indice" / "kb"))
     ap.add_argument("--modelo", default=MODELO_PADRAO)
     ap.add_argument("--sem-llm", action="store_true", help="usa apenas o gerador por template")
-    ap.add_argument("--exigir-claude", action="store_true", help=argparse.SUPPRESS)  # compatibilidade legada
+    ap.add_argument("--exigir-claude", action="store_true",
+                    help="padrão: falha em vez de usar template se Claude não responder")
+    ap.add_argument("--permitir-template", action="store_true",
+                    help="aceita template como fallback se o Claude falhar (não usar em produção)")
     ap.add_argument("--mostrar-prompt", action="store_true")
     ap.add_argument("--formato", choices=["md", "judit", "json"], default="md")
     ap.add_argument("--saida", help="arquivo de saída (padrão: stdout)")
     a = ap.parse_args()
     if a.sem_llm and a.exigir_claude:
         ap.error("--exigir-claude não pode ser usado com --sem-llm")
+    if a.permitir_template and a.exigir_claude:
+        ap.error("--permitir-template não pode ser usado com --exigir-claude")
+    load_dotenv(RAIZ / ".env", override=False)
+    exigir = not a.sem_llm and not a.permitir_template
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 
     payload = json.loads(Path(a.entrada).read_text(encoding="utf-8"))
@@ -52,7 +60,7 @@ def main():
 
     gerador = GeradorTemplate() if a.sem_llm else GeradorClaude(modelo=a.modelo)
     try:
-        resultados = gerar_resumos(payload, kb, gerador, fallback_template=a.sem_llm)
+        resultados = gerar_resumos(payload, kb, gerador, fallback_template=not exigir)
     except Exception as exc:
         # Não imprimir exceção completa: pode incluir dados do prompt/processo.
         http = getattr(exc, "status_code", None)
@@ -61,6 +69,9 @@ def main():
         sys.exit(1)
     if not resultados:
         sys.exit("Nenhum processo elegível foi encontrado; saída não gerada.")
+    if exigir and any(r.usou_fallback or r.gerador == "template" for r in resultados):
+        sys.exit("Falha: resultado não foi gerado pelo Claude.")
+
     if a.formato == "md":
         texto = "\n\n---\n\n".join(r.summary_ia for r in resultados)
     elif a.formato == "judit":
