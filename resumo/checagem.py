@@ -67,14 +67,16 @@ def _us_para_float(token: str) -> float | None:
         return None
 
 
-def verificar(texto: str, payload) -> list[str]:
-    """Retorna lista de divergências (vazia = nenhuma data ou valor sem respaldo)."""
+def verificar(texto: str, payload, fatos: list[dict] | None = None) -> list[str]:
+    """Retorna divergências. A fonte de verdade é o JSON bruto da Judit e os fatos extraídos pelo parser
+    (que incluem datas derivadas, como fim de prazo, e são o que o modelo recebe)."""
     erros = []
-    datas = _datas_nos_dados(payload)
+    fonte = {"payload": payload, "fatos": fatos or []}
+    datas = _datas_nos_dados(fonte)
     for d, m, a in _RE_DATA_TEXTO.findall(texto):
         if f"{d}/{m}/{a}" not in datas:
             erros.append(f"data {d}/{m}/{a} do resumo não aparece nos dados da Judit")
-    valores = _valores_nos_dados(payload)
+    valores = _valores_nos_dados(fonte)
     for tok in _RE_MOEDA.findall(texto):
         alvo = _moeda_para_float(tok)
         if alvo is None:

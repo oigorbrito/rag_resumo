@@ -99,7 +99,8 @@ def _validar(payload: dict, resultados: list, kb: BaseConhecimento | None = None
             erros.append("fonte RAG ausente do índice")
         if r.usou_fallback:
             erros.append("fallback utilizado; gate de gerador principal não aprovado")
-        erros.extend(checagem.verificar(r.summary_ia, payload))
+        dados_fatos = [f.to_dict() for f in fatos if f.cnj == r.cnj]
+        erros.extend(checagem.verificar(r.summary_ia, payload, dados_fatos))
     return sorted(set(erros))
 
 

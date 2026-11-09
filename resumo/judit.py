@@ -82,10 +82,14 @@ class ClienteJudit:
     def criar_consulta(self, cnj: str) -> str:
         if not _RE_CNJ.fullmatch(cnj):
             raise ValueError("CNJ inválido; use o formato NNNNNNN-DD.AAAA.J.TR.OOOO")
-        data = self._post_json("/requests", {
+        corpo = {
             "search": {"search_type": "lawsuit_cnj", "search_key": cnj},
             "with_attachments": False,
-        })
+        }
+        callback = os.getenv("JUDIT_CALLBACK_URL", "").strip()
+        if callback:
+            corpo["callback_url"] = callback  # a Judit envia o resultado para esta URL HTTPS
+        data = self._post_json("/requests", corpo)
         request_id = data.get("request_id")
         try:
             return str(uuid.UUID(request_id))
