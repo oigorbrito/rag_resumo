@@ -173,6 +173,8 @@ class GeradorClaude:
     @property
     def client(self):
         if self._client is None:
+            from dotenv import load_dotenv
+            load_dotenv(override=False)  # variáveis já exportadas têm precedência
             import anthropic
             self._client = anthropic.Anthropic()  # lê ANTHROPIC_API_KEY do ambiente
         return self._client
