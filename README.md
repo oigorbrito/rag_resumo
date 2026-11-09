@@ -6,8 +6,8 @@ Gera o resumo de um processo (formato `summary_ia`, Markdown com `className` par
 
 1. **Parser (determinístico):** normaliza partes, datas, prazos e movimentações. Mascara CPF/CNPJ e detecta inconsistências do cadastro.
 2. **RAG:** busca termos no glossário (`kb/*.jsonl`) por código TPU, termo exato e, por último, similaridade vetorial.
-3. **Claude:** redige apenas os textos, com tool use forçado. Não recebe CPF/CNPJ.
-4. **Render:** monta o HTML com layout fixo e sanitização. Se a API falhar, o gerador por template completa o que faltar.
+3. **Claude:** redige apenas os textos por meio da ferramenta `registrar_resumo`. Não recebe CPF/CNPJ; erros da API interrompem a execução por padrão.
+4. **Render:** monta Markdown com tags `className` para React/Tailwind e sanitiza o texto. Campos ausentes numa resposta válida são completados pelo template.
 
 ## Instalação
 
@@ -17,7 +17,17 @@ export ANTHROPIC_API_KEY=...      # somente se for usar o Claude
 python scripts/indexar.py         # gera indice/
 ```
 
-## Uso
+## Consulta Judit e fluxo E2E
+
+Configure `ANTHROPIC_API_KEY` e `JUDIT_API_KEY` no ambiente ou copie `.env.example` para `.env` e preencha localmente. A chave Judit usa o header `api-key`; o SDK Anthropic lê `ANTHROPIC_API_KEY`. Nunca versione `.env`.
+
+A consulta assíncrona por CNJ cria uma requisição cobrada na Judit; substitua pelo CNJ que você está autorizado a consultar. O comando desativa anexos e não aciona Judit IA:
+
+```bash
+python scripts/consultar_gerar.py --cnj "<CNJ_AUTORIZADO>" --saida summary_ia.md --relatorio relatorio_e2e.json
+```
+
+Também é possível recuperar uma consulta existente (`--request-id UUID`) ou processar JSON já obtido, sem chamar Judit (`--entrada processo.json`). `--sem-llm` usa template e não comprova execução do Claude. O relatório identifica gerador, fontes e fallback; sua validação automatizada cobre estrutura, correspondência do CNJ e exposição de documentos, não substitui revisão factual humana.
 
 ```bash
 python scripts/gerar.py processo.json                  # com Claude
@@ -57,8 +67,12 @@ Embeddings: padrão `hashing` (offline, só numpy). Para semântica melhor:
 ## Testes
 
 ```bash
-python -m pytest -q
+python -m pytest -q                 # offline, sem APIs
+python scripts/indexar.py
+python scripts/consultar_gerar.py --entrada tests/fixtures/judit_exemplo.json --sem-llm
 ```
+
+O teste real de Judit pode gerar cobrança; a chamada Claude pode gerar custo. Não use um processo real sem autorização e observe o status no relatório.
 
 Os testes usam `tests/fixtures/judit_exemplo.json`, que deve permanecer anonimizado.
 
