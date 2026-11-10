@@ -164,6 +164,8 @@ def main() -> int:
     ap.add_argument("--sem-llm", action="store_true", help="gera via template; não comprova Claude")
     ap.add_argument("--saida", type=Path, default=Path("summary_ia.md"))
     ap.add_argument("--relatorio", type=Path, default=Path("relatorio_e2e.json"))
+    ap.add_argument("--verificacao-saida", type=Path, default=None,
+                    help="grava a verificação item a item (datas e valores) em JSON; opcional")
     ap.add_argument("--timeout", type=float, default=300)
     ap.add_argument("--intervalo", type=float, default=3)
     args = ap.parse_args()
@@ -245,6 +247,15 @@ def main() -> int:
         except Exception:
             args.saida.unlink(missing_ok=True)
             raise
+        if args.verificacao_saida is not None:
+            try:
+                fatos_dict = [extrair_fatos(d).to_dict() for d in extrair_processos(payload)]
+                itens = checagem.itens_verificados(text, payload, fatos_dict)
+                _write_exclusive(args.verificacao_saida, json.dumps(
+                    {"itens": itens, "resumo_sha256": manifest["summary_sha256"]},
+                    ensure_ascii=False, indent=2) + "\n")
+            except Exception as exc:  # a verificação detalhada é auxiliar; o resumo já foi publicado
+                print(f"AVISO: verificação item a item não gravada ({type(exc).__name__}).", file=sys.stderr)
         print(f"{status}: {len(results)} resumo(s); gerador={manifest['generator_effective']}; "
               f"fontes={len(manifest['rag']['source_ids_retrieved'])}; fallback=não")
         return 0

@@ -73,3 +73,9 @@ Thumbs.db
 
 # Relatórios de execução (contêm dados do processo; não versionar)
 relatorio*.json
+
+# Resumos do piloto web (dados de processos)
+dados/
+
+# Saídas geradas localmente (resumos de processos reais)
+saidas/

@@ -1,0 +1,13 @@
+.env
+.env.*
+!.env.example
+.git
+.github
+.pytest_cache
+__pycache__
+dados
+saidas
+relatorio*.json
+resumo*.md
+summary_ia.md
+*.log
