@@ -14,6 +14,8 @@ pip install -r requirements.txt
 python -m pytest -q                       # deve passar antes de qualquer commit
 python scripts/indexar.py                 # reconstrói indice/ a partir de kb/*.jsonl
 python scripts/gerar.py <arq.json> --sem-llm   # gerador local, sem API
+python scripts/app_web.py                 # tela local (no Windows: iniciar.bat)
+python scripts/verificar_instalacao.py    # prova de instalação do zero (sem chaves reais)
 ```
 
 - Testes e verificações **não** devem chamar a API real. Use `--sem-llm` ou cliente simulado.

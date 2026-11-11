@@ -142,6 +142,15 @@ def listar_jobs() -> list[dict]:
 
 def atualizar_status(meta: dict) -> dict:
     """Fecha um job RODANDO quando o processo termina, usando o relatório e o código de saída."""
+    if not meta.get("request_id"):
+        arq = dados_dir() / meta["id"] / "request_id.txt"
+        try:
+            rid = arq.read_text(encoding="utf-8").strip()
+        except OSError:
+            rid = ""
+        if rid:
+            meta["request_id"] = rid
+            _salvar_meta(dados_dir() / meta["id"], meta)
     if meta.get("status") != "RODANDO":
         return meta
     proc = PROCESSOS.get(meta["id"])
@@ -161,14 +170,30 @@ def atualizar_status(meta: dict) -> dict:
     return meta
 
 
-def iniciar_geracao(cnj: str, usuario: str = "") -> dict:
+def request_id_reaproveitavel(jobs: list[dict], cnj: str) -> str:
+    """request_id de uma tentativa anterior que falhou para este CNJ (evita nova consulta paga à Judit)."""
+    for m in jobs:  # já ordenados do mais novo para o mais antigo
+        if m.get("cnj") == cnj and m.get("status") == "FALHOU" and m.get("request_id"):
+            if "CANCELLED" in (m.get("motivo") or "").upper():
+                return ""
+            return m["request_id"]
+        if m.get("cnj") == cnj and m.get("status") == "PASS":
+            return ""
+    return ""
+
+
+def iniciar_geracao(cnj: str, usuario: str = "", request_id: str = "") -> dict:
     job_id = uuid.uuid4().hex
     pasta = dados_dir() / job_id
     pasta.mkdir(parents=True)
     meta = {"id": job_id, "cnj": cnj, "criado_em": _agora(), "criado_por": usuario, "status": "RODANDO"}
+    if request_id:
+        meta["request_id"] = request_id
     _salvar_meta(pasta, meta)
     log = open(pasta / "log.txt", "w", encoding="utf-8")
-    cmd = [sys.executable, str(ROOT / "scripts" / "consultar_gerar.py"), "--cnj", cnj,
+    origem = ["--request-id", request_id] if request_id else \
+        ["--cnj", cnj, "--request-id-saida", str(pasta / "request_id.txt")]
+    cmd = [sys.executable, str(ROOT / "scripts" / "consultar_gerar.py"), *origem,
            "--saida", str(pasta / "resumo.md"), "--relatorio", str(pasta / "relatorio.json"),
            "--verificacao-saida", str(pasta / "verificacao.json")]
     PROCESSOS[job_id] = subprocess.Popen(cmd, cwd=str(ROOT), stdout=log, stderr=subprocess.STDOUT)
@@ -506,8 +531,10 @@ class Handler(BaseHTTPRequestHandler):
                     return self._redirecionar(f"/job/{existente['id']}")
             if any(m.get("status") == "RODANDO" for m in jobs):
                 return self._enviar(409, pagina_inicial("Já existe uma geração em andamento. Aguarde terminar."))
-            meta = iniciar_geracao(cnj, self.usuario)
-        auditar(self.usuario, "gerar", job=meta["id"], cnj=cnj, nova_versao=forcar, ip=self.client_address[0])
+            reaproveitar = "" if forcar else request_id_reaproveitavel(jobs, cnj)
+            meta = iniciar_geracao(cnj, self.usuario, reaproveitar)
+        auditar(self.usuario, "gerar", job=meta["id"], cnj=cnj, nova_versao=forcar,
+                retomada_sem_nova_consulta=bool(reaproveitar), ip=self.client_address[0])
         self._redirecionar(f"/job/{meta['id']}")
 
     def _revisar(self, form):

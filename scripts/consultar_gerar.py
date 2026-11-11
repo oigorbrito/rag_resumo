@@ -166,6 +166,8 @@ def main() -> int:
     ap.add_argument("--relatorio", type=Path, default=Path("relatorio_e2e.json"))
     ap.add_argument("--verificacao-saida", type=Path, default=None,
                     help="grava a verificação item a item (datas e valores) em JSON; opcional")
+    ap.add_argument("--request-id-saida", type=Path, default=None,
+                    help="grava o request_id da Judit assim que a consulta é criada (permite retomar sem nova cobrança)")
     ap.add_argument("--timeout", type=float, default=300)
     ap.add_argument("--intervalo", type=float, default=3)
     args = ap.parse_args()
@@ -193,8 +195,16 @@ def main() -> int:
             client = ClienteJudit()
             try:
                 if args.cnj:
-                    request_id, payload = client.consultar(args.cnj, timeout=args.timeout, intervalo=args.intervalo)
+                    request_id = client.criar_consulta(args.cnj)  # única chamada cobrada
                     input_id = request_id
+                    print(f"REQUEST_ID: {request_id}", flush=True)
+                    if args.request_id_saida is not None:
+                        try:
+                            args.request_id_saida.write_text(request_id, encoding="utf-8")
+                        except OSError:
+                            pass
+                    client.aguardar(request_id, timeout=args.timeout, intervalo=args.intervalo)
+                    payload = client.recuperar(request_id)
                 else:
                     input_id = args.request_id
                     payload = client.recuperar(args.request_id)
