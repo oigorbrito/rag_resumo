@@ -24,6 +24,6 @@ if not exist ".env" (
 set HOST=127.0.0.1
 set PORT=8000
 echo Abrindo http://localhost:%PORT% - feche esta janela para encerrar o programa.
-start "" /b powershell -NoProfile -Command "Start-Sleep -Seconds 3; Start-Process 'http://localhost:%PORT%'"
+start "" /b powershell -NoProfile -Command "for($i=0;$i -lt 90;$i++){try{$c=New-Object Net.Sockets.TcpClient('127.0.0.1',%PORT%);$c.Close();Start-Process 'http://localhost:%PORT%';break}catch{Start-Sleep -Seconds 1}}"
 python scripts\app_web.py
 pause

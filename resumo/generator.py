@@ -176,7 +176,7 @@ class GeradorClaude:
             from dotenv import load_dotenv
             load_dotenv(override=False)  # variáveis já exportadas têm precedência
             import anthropic
-            self._client = anthropic.Anthropic()  # lê ANTHROPIC_API_KEY do ambiente
+            self._client = anthropic.Anthropic(max_retries=1, timeout=180.0)  # lê ANTHROPIC_API_KEY; no máximo 1 nova tentativa
         return self._client
 
     def chamar(self, mensagem: str) -> dict:

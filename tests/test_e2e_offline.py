@@ -149,7 +149,7 @@ def test_gerador_carrega_dotenv_sem_sobrescrever_ambiente(tmp_path, monkeypatch)
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     constructed = []
     fake_sdk_client = object()
-    monkeypatch.setattr(anthropic, "Anthropic", lambda: (constructed.append(bool(os.getenv("ANTHROPIC_API_KEY"))) or fake_sdk_client))
+    monkeypatch.setattr(anthropic, "Anthropic", lambda **kw: (constructed.append(bool(os.getenv("ANTHROPIC_API_KEY"))) or fake_sdk_client))
     assert GeradorClaude().client is fake_sdk_client
     assert loaded == [False] and constructed == [True]
     monkeypatch.setenv("ANTHROPIC_API_KEY", "exported-test-key")
