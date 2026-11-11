@@ -6,7 +6,7 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
-python -c "import anthropic, dotenv, httpx, numpy" >nul 2>nul
+python -c "import anthropic, dotenv, httpx, numpy, zoneinfo; zoneinfo.ZoneInfo('America/Sao_Paulo')" >nul 2>nul
 if errorlevel 1 (
   echo Primeira execucao: instalando as dependencias. Isso pode levar alguns minutos.
   python -m pip install -r requirements.txt

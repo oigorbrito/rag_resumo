@@ -7,6 +7,8 @@ from types import SimpleNamespace
 
 import pytest
 
+from resumo.knowledge import BaseConhecimento
+
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location("gerar_cli_gate", ROOT / "scripts" / "gerar.py")
 CLI = importlib.util.module_from_spec(SPEC)
@@ -17,8 +19,12 @@ def run_cli(monkeypatch, tmp_path, flags, backend):
     entrada = tmp_path / "input.json"
     entrada.write_text((ROOT / "tests/fixtures/judit_exemplo.json").read_text(encoding="utf-8"), encoding="utf-8")
     saida = tmp_path / "saida.json"
+    # índice próprio do teste: não depende de indice/ já criado na máquina (que não é versionado)
+    prefixo = tmp_path / "kb"
+    BaseConhecimento.construir(ROOT / "kb").salvar(prefixo)
     monkeypatch.setattr(CLI, "gerar_resumos", backend)
-    monkeypatch.setattr(sys, "argv", ["gerar.py", str(entrada), "--formato", "json", "--saida", str(saida), *flags])
+    monkeypatch.setattr(sys, "argv", ["gerar.py", str(entrada), "--formato", "json", "--saida", str(saida),
+                                      "--indice", str(prefixo), *flags])
     return saida
 
 

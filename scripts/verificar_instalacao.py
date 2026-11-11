@@ -86,7 +86,8 @@ def main() -> int:
         if not a.sem_testes:
             r = subprocess.run([py, "-m", "pytest", "-q"], cwd=destino, capture_output=True, text=True)
             ultima = (r.stdout.strip().splitlines() or ["sem saída"])[-1]
-            passo("testes automáticos na cópia limpa", r.returncode == 0, ultima)
+            passo("testes automáticos na cópia limpa", r.returncode == 0,
+                  ultima if r.returncode == 0 else "\n" + (r.stdout + r.stderr)[-900:])
 
         porta = _porta_livre()
         env = {k: v for k, v in os.environ.items() if k != "APP_SENHA"}
