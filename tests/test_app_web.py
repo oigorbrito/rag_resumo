@@ -227,3 +227,37 @@ def test_falha_ao_criar_o_indice_e_informada():
     import types
     with tempfile.TemporaryDirectory() as tmp:
         assert APP.garantir_indice(Path(tmp), executar=lambda *a, **k: types.SimpleNamespace(returncode=1)) is False
+
+
+def test_limpar_historico_apaga_resumos_mas_preserva_auditoria_e_jobs_rodando():
+    with servidor() as (porta, dados):
+        _criar_job(dados)
+        _criar_job(dados)
+        rodando = uuid.uuid4().hex
+        (dados / rodando).mkdir()
+        (dados / rodando / "meta.json").write_text(json.dumps(
+            {"id": rodando, "cnj": "5000395-40.2023.8.21.0033", "criado_em": "2026-11-10 10:00:00",
+             "status": "RODANDO"}))
+        APP.PROCESSOS[rodando] = type("P", (), {"poll": lambda self: None})()
+        try:
+            status, pagina = _req(porta, "GET", "/", AUTH)
+            assert "Limpar histórico" in pagina
+            origem = {**AUTH, "Origin": f"http://127.0.0.1:{porta}"}
+            status, _ = _req(porta, "POST", "/limpar-historico", origem, "")
+            assert status == 303
+        finally:
+            APP.PROCESSOS.pop(rodando, None)
+        restantes = [p.name for p in dados.iterdir() if p.is_dir()]
+        assert restantes == [rodando]
+        assert "limpar_historico" in (dados / "auditoria.log").read_text(encoding="utf-8")
+
+
+def test_limpar_historico_bloqueia_origem_externa_e_nao_aparece_sem_resumos():
+    with servidor() as (porta, dados):
+        status, pagina = _req(porta, "GET", "/", AUTH)
+        assert "Limpar histórico" not in pagina
+        _criar_job(dados)
+        externa = {**AUTH, "Origin": "http://site-malicioso.example"}
+        status, _ = _req(porta, "POST", "/limpar-historico", externa, "")
+        assert status == 403
+        assert len([p for p in dados.iterdir() if p.is_dir()]) == 1

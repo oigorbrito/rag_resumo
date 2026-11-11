@@ -21,6 +21,7 @@ import html
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import threading
@@ -95,6 +96,28 @@ def _pasta_do_job(job_id: str) -> Path | None:
         return None
     pasta = dados_dir() / job_id
     return pasta if (pasta / "meta.json").exists() else None
+
+
+def limpar_historico() -> tuple[int, int]:
+    """Apaga os resumos já gerados (pastas de jobs). Não apaga jobs em andamento nem o registro de auditoria.
+    Retorna (apagados, mantidos)."""
+    apagados = mantidos = 0
+    base = dados_dir()
+    if not base.exists():
+        return 0, 0
+    for pasta in base.iterdir():
+        if not (pasta.is_dir() and JOB_RE.match(pasta.name) and (pasta / "meta.json").exists()):
+            continue
+        meta = _ler_json(pasta / "meta.json")
+        if not isinstance(meta, dict):
+            continue
+        meta = atualizar_status(meta)
+        if meta.get("status") == "RODANDO":
+            mantidos += 1
+            continue
+        shutil.rmtree(pasta, ignore_errors=True)
+        apagados += 1
+    return apagados, mantidos
 
 
 def _sha_resumo(pasta: Path) -> str | None:
@@ -266,6 +289,9 @@ def pagina_inicial(erro: str | None = None) -> str:
         for m in jobs[:50]
     ) or '<li class="mut">Nenhum resumo gerado ainda.</li>'
     aviso = f'<div class="card err">{html.escape(erro)}</div>' if erro else ""
+    limpar = ('<form method="post" action="/limpar-historico" class="noprint" '
+              'onsubmit="return confirm(\'Apagar todos os resumos e revisões gerados? Isso não pode ser desfeito.\')">'
+              '<button type="submit">Limpar histórico</button></form>') if jobs else ""
     corpo = f"""
 <h1>Resumo de processo</h1>
 {aviso}
@@ -277,6 +303,7 @@ def pagina_inicial(erro: str | None = None) -> str:
 </form>
 <h2 style="font-size:1.1rem">Resumos anteriores</h2>
 <div class="card"><ul class="lista">{itens}</ul></div>
+{limpar}
 """
     return _pagina("Resumo de processo", corpo)
 
@@ -508,7 +535,7 @@ class Handler(BaseHTTPRequestHandler):
         if not self._exigir_senha():
             return
         caminho = urlparse(self.path).path
-        if caminho not in ("/gerar", "/revisar"):
+        if caminho not in ("/gerar", "/revisar", "/limpar-historico"):
             return self._enviar(404, "Não encontrado.", "text/plain; charset=utf-8")
         if not self._origem_confiavel():
             return self._enviar(403, "Origem não permitida.", "text/plain; charset=utf-8")
@@ -516,6 +543,12 @@ class Handler(BaseHTTPRequestHandler):
         form = parse_qs(self.rfile.read(tamanho).decode("utf-8", "replace"))
         if caminho == "/revisar":
             return self._revisar(form)
+        if caminho == "/limpar-historico":
+            with LOCK:
+                apagados, mantidos = limpar_historico()
+            auditar(self.usuario, "limpar_historico", apagados=apagados, mantidos=mantidos,
+                    ip=self.client_address[0])
+            return self._redirecionar("/")
         return self._gerar(form)
 
     def _gerar(self, form):
