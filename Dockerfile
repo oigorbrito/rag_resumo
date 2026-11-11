@@ -4,6 +4,7 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
+RUN python scripts/indexar.py
 ENV HOST=0.0.0.0 PORT=8000 RESUMO_DADOS_DIR=/dados PYTHONUNBUFFERED=1
 VOLUME ["/dados"]
 EXPOSE 8000

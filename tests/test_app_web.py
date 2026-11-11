@@ -203,3 +203,27 @@ def test_pagina_de_falha_mostra_explicacao_e_detalhe_tecnico():
         _, pagina = _req(port, "GET", f"/job/{job}", AUTH)
         assert "A Judit não encontrou este processo" in pagina
         assert "Detalhe técnico" in pagina and "BLOCKED_JUDIT_NOT_FOUND" in pagina
+
+
+def test_indice_ausente_e_criado_automaticamente_e_nao_refeito():
+    import types
+    with tempfile.TemporaryDirectory() as tmp:
+        raiz = Path(tmp)
+        chamadas = []
+
+        def falso(cmd, **_kw):
+            chamadas.append(cmd)
+            (raiz / "indice").mkdir(exist_ok=True)
+            (raiz / "indice" / "kb.json").write_text("{}")
+            return types.SimpleNamespace(returncode=0)
+
+        assert APP.garantir_indice(raiz, executar=falso) is True
+        assert len(chamadas) == 1
+        assert APP.garantir_indice(raiz, executar=falso) is True
+        assert len(chamadas) == 1  # já existe: não refaz
+
+
+def test_falha_ao_criar_o_indice_e_informada():
+    import types
+    with tempfile.TemporaryDirectory() as tmp:
+        assert APP.garantir_indice(Path(tmp), executar=lambda *a, **k: types.SimpleNamespace(returncode=1)) is False

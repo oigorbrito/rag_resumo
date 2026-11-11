@@ -536,6 +536,15 @@ class Handler(BaseHTTPRequestHandler):
         self._redirecionar(f"/job/{job_id}")
 
 
+def garantir_indice(raiz: Path = ROOT, executar=subprocess.run) -> bool:
+    """Cria o índice do glossário na primeira execução (ele não é versionado e é gerado offline)."""
+    if (raiz / "indice" / "kb.json").exists():
+        return True
+    print("Criando o índice do glossário (primeira execução)...", flush=True)
+    r = executar([sys.executable, str(raiz / "scripts" / "indexar.py")], cwd=str(raiz))
+    return r.returncode == 0 and (raiz / "indice" / "kb.json").exists()
+
+
 def main() -> int:
     global SEM_SENHA
     load_dotenv(ROOT / ".env", override=False)
@@ -551,9 +560,9 @@ def main() -> int:
         print(f"Faltando configuração: {', '.join(faltando)}. Preencha no arquivo .env (veja .env.example).",
               file=sys.stderr)
         return 2
-    if not (ROOT / "indice" / "kb.json").exists():
-        print("Aviso: índice não encontrado em indice/kb.json; rode scripts/indexar.py antes de gerar.",
-              file=sys.stderr)
+    if not garantir_indice():
+        print("Não foi possível criar o índice do glossário. Rode: python scripts/indexar.py", file=sys.stderr)
+        return 2
     port = int(os.environ.get("PORT", "8000"))
     dados_dir().mkdir(parents=True, exist_ok=True)
     modo = "modo local, sem senha (acessível só neste computador)" if SEM_SENHA else "com senha"

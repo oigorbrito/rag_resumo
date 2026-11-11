@@ -6,10 +6,20 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
+python -c "import anthropic, dotenv, httpx, numpy" >nul 2>nul
+if errorlevel 1 (
+  echo Primeira execucao: instalando as dependencias. Isso pode levar alguns minutos.
+  python -m pip install -r requirements.txt
+  if errorlevel 1 (
+    echo Falha ao instalar as dependencias. Verifique a conexao com a internet.
+    pause
+    exit /b 1
+  )
+)
 if not exist ".env" (
-  echo Arquivo .env nao encontrado. Copie .env.example para .env e preencha ANTHROPIC_API_KEY e JUDIT_API_KEY.
-  pause
-  exit /b 1
+  copy ".env.example" ".env" >nul
+  echo Foi criado o arquivo .env. Preencha ANTHROPIC_API_KEY e JUDIT_API_KEY, salve e feche o Bloco de Notas.
+  start /wait notepad ".env"
 )
 set HOST=127.0.0.1
 set PORT=8000
